@@ -93,18 +93,18 @@ all metrics will add static labelsets.
 ## Example
 
 
-app_http_response_count_total{foo="foo",method="GET",request="/v1.0/example",status="200"} 2
-app_http_response_count_total{foo="foo",method="GET",request="/v1.0/example/:id",status="200"} 1
+app_http_response_count_total{foo="foo",method="GET",request="/app",status="200"} 2
+app_http_response_count_total{foo="foo",method="GET",request="/app",status="200"} 1
 
-app_http_response_size_bytes{foo="foo",method="GET",request="/v1.0/example",status="200"} 70
-app_http_response_size_bytes{foo="foo",method="GET",request="/v1.0/example/:id",status="200"} 21
+app_http_response_size_bytes{foo="foo",method="GET",request="/app",status="200"} 70
+app_http_response_size_bytes{foo="foo",method="GET",request="/app",status="200"} 21
 
-app_http_response_time_seconds_bucket{foo="foo",method="GET",request="/v1.0/example",status="200",le="0.5"} 2
-app_http_response_time_seconds_count{foo="foo",method="GET",request="/v1.0/example",status="200"} 2
-app_http_response_time_seconds_bucket{foo="foo",method="GET",request="/v1.0/example/:id",status="200",le="0.5"} 1
+app_http_response_time_seconds_bucket{foo="foo",method="GET",request="/app",status="200",le="0.5"} 2
+app_http_response_time_seconds_count{foo="foo",method="GET",request="/app",status="200"} 2
+app_http_response_time_seconds_bucket{foo="foo",method="GET",request="/app",status="200",le="0.5"} 1
 
-app_http_response_time_seconds_sum{foo="foo",method="GET",request="/v1.0/example/:id",status="200"} 0.003
-app_http_response_time_seconds_count{foo="foo",method="GET",request="/v1.0/example/:id",status="200"} 1
+app_http_response_time_seconds_sum{foo="foo",method="GET",request="/app",status="200"} 0.003
+app_http_response_time_seconds_count{foo="foo",method="GET",request="/app",status="200"} 1
 
 
 ## Thanks
