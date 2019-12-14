@@ -2,12 +2,13 @@ package metric
 
 import (
 	"fmt"
+	"encoding/json"
 	"log"
+	"strconv"
 	"strings"
 
 	"github.com/hpcloud/tail"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/satyrius/gonx"
 	"github.com/songjiayang/nginx-log-exporter/config"
 )
 
@@ -24,7 +25,6 @@ type Collector struct {
 	dynamicValueLen int
 
 	cfg    *config.AppConfig
-	parser *gonx.Parser
 }
 
 func NewCollector(cfg *config.AppConfig) *Collector {
@@ -63,7 +63,6 @@ func NewCollector(cfg *config.AppConfig) *Collector {
 		dynamicValueLen: len(dynamicLabels),
 
 		cfg:    cfg,
-		parser: gonx.NewParser(cfg.Format),
 	}
 }
 
@@ -89,16 +88,19 @@ func (c *Collector) Run() {
 
 		go func() {
 			for line := range t.Lines {
-				entry, err := c.parser.ParseString(line.Text)
-				if err != nil {
+
+			    var mp map[string]string
+            	err = json.Unmarshal([]byte(line.Text), &mp)
+            	if err != nil {
 					fmt.Printf("error while parsing line '%s': %s", line.Text, err)
-					continue
-				}
+            		continue
+            	}
 
 				dynamicValues := make([]string, c.dynamicValueLen)
 
 				for i, label := range c.dynamicLabels {
-					if s, err := entry.Field(label); err == nil {
+
+					if s, ok := mp[label]; ok {
 						dynamicValues[i] = c.formatValue(label, s)
 					}
 				}
@@ -107,16 +109,28 @@ func (c *Collector) Run() {
 
 				c.countTotal.WithLabelValues(labelValues...).Inc()
 
-				if bytes, err := entry.FloatField("body_bytes_sent"); err == nil {
-					c.bytesTotal.WithLabelValues(labelValues...).Add(bytes)
+				if bytes, ok := mp["body_bytes_sent"]; ok {
+
+				    if b, err := strconv.ParseFloat(bytes, 32); err == nil {
+
+					    c.bytesTotal.WithLabelValues(labelValues...).Add(b)
+					}
 				}
 
-				if upstreamTime, err := entry.FloatField("upstream_response_time"); err == nil {
-					c.upstreamSeconds.WithLabelValues(labelValues...).Observe(upstreamTime)
+				if upstreamTime, ok := mp["upstream_response_time"]; ok {
+
+				    if u, err := strconv.ParseFloat(upstreamTime, 32); err == nil {
+
+					    c.upstreamSeconds.WithLabelValues(labelValues...).Observe(u)
+					}
 				}
 
-				if responseTime, err := entry.FloatField("request_time"); err == nil {
-					c.responseSeconds.WithLabelValues(labelValues...).Observe(responseTime)
+				if responseTime, ok := mp["request_time"]; ok {
+
+				    if r, err := strconv.ParseFloat(responseTime, 32); err == nil {
+
+					    c.responseSeconds.WithLabelValues(labelValues...).Observe(r)
+					}
 				}
 			}
 		}()
