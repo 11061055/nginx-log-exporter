@@ -1,16 +1,26 @@
 - name: nginx
   source_files:
-    - /data/logs/nginx/service_nginx_80.log
+    - /data/logs/nginx/ucenter_access.log
   static_config:
     service: user_center
-  relabel_config: 
-    source_labels: 
-      - request
-      - method
+  relabel_config:
+    source_labels:
       - status
+      - request
+      - http_host
+      - server_port
+      - upstream_addr
+      - request_method
+      - upstream_status
     replacement:
-      request: 
+      request:
         trim: "?"
         replace:
-          - target: /app/[0-9]+/api
-            value: /app/xxx/api
+          - target: ^[A-Z]+ /
+            value: /
+          - target: (.*)/[0-9]+/(.*)
+            value: $1/xxx/$2
+  histogram_buckets:
+    start: 5.0
+    step: 5.0
+    num: 800

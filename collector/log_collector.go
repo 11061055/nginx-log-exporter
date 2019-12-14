@@ -32,6 +32,7 @@ func NewCollector(cfg *config.AppConfig) *Collector {
 	dynamicLabels := cfg.DynamicLabels()
 
 	labels := append(staticLabels, dynamicLabels...)
+    bucket := prometheus.LinearBuckets(cfg.HistogramBuckets.Start, cfg.HistogramBuckets.Step, cfg.HistogramBuckets.Num)
 
 	return &Collector{
 		countTotal: prometheus.NewCounterVec(prometheus.CounterOpts{
@@ -50,12 +51,14 @@ func NewCollector(cfg *config.AppConfig) *Collector {
 			Namespace: cfg.Name,
 			Name:      "http_upstream_time_seconds",
 			Help:      "Time needed by upstream servers to handle requests",
+			Buckets:   bucket,
 		}, labels),
 
 		responseSeconds: prometheus.NewHistogramVec(prometheus.HistogramOpts{
 			Namespace: cfg.Name,
 			Name:      "http_response_time_seconds",
 			Help:      "Time needed by NGINX to handle requests",
+			Buckets:   bucket,
 		}, labels),
 
 		staticValues:    staticValues,
@@ -90,6 +93,7 @@ func (c *Collector) Run() {
 			for line := range t.Lines {
 
 			    var mp map[string]string
+
             	err = json.Unmarshal([]byte(line.Text), &mp)
             	if err != nil {
 					fmt.Printf("error while parsing line '%s': %s", line.Text, err)
@@ -149,7 +153,7 @@ func (c *Collector) formatValue(label, value string) string {
 
 	for _, target := range replacement.Repace {
 		if target.Regexp().MatchString(value) {
-			return target.Value
+		    value = target.Regexp().ReplaceAllString(value, target.Value)
 		}
 	}
 

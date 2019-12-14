@@ -14,6 +14,12 @@ type Config struct {
 	original string
 }
 
+type HistogramBuckets struct {
+	Start float64
+	Step float64
+	Num int
+}
+
 type AppConfig struct {
 	Name   string `yaml:"name"`
 	Format string `yaml:"format"`
@@ -21,6 +27,7 @@ type AppConfig struct {
 	SourceFiles   []string          `yaml:"source_files"`
 	StaticConfig  map[string]string `yaml:"static_config"`
 	RelabelConfig *RelabelConfig    `yaml:"relabel_config"`
+	HistogramBuckets *HistogramBuckets    `yaml:"histogram_buckets"`
 }
 
 func (this *AppConfig) StaticLabelValues() (labels, values []string) {
