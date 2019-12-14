@@ -16,7 +16,7 @@ var (
 )
 
 func main() {
-	flag.StringVar(&bind, "web.listen-address", ":9999", "Address to listen on for the web interface and API.")
+	flag.StringVar(&bind, "web.listen-address", ":6666", "Address to listen on for the web interface and API.")
 	flag.StringVar(&configFile, "config.file", "config.yml", "Nginx log exporter configuration file name.")
 
 	flag.Parse()
