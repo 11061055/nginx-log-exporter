@@ -82,7 +82,7 @@ sevice nginx log, support multiple files.log must be in json style, or you can a
 
 ## static_config
 
-all metrics will add static labelsets.
+all metrics will add static label sets.
 
 ## relabel_config:
 
