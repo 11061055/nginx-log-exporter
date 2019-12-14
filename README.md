@@ -66,10 +66,14 @@ exit status 2
 
 service name, metric will be : 
 
-`{name}_http_response_count_total`, 
-`{name}_http_response_count_total`, 
-`{name}_http_response_size_bytes`, 
-`{name}_http_upstream_time_seconds`, 
+`{name}_http_response_count_total`
+
+`{name}_http_response_count_total`
+
+`{name}_http_response_size_bytes`
+
+`{name}_http_upstream_time_seconds`
+
 `{name}_http_response_time_seconds`
 
 ## source_files
@@ -95,16 +99,14 @@ app_http_response_count_total{foo="foo",method="GET",request="/v1.0/example/:id"
 app_http_response_size_bytes{foo="foo",method="GET",request="/v1.0/example",status="200"} 70
 app_http_response_size_bytes{foo="foo",method="GET",request="/v1.0/example/:id",status="200"} 21
 
-app_http_response_time_seconds_bucket{foo="foo",method="GET",request="/v1.0/example",status="200",le="0.005"} 2
-
+app_http_response_time_seconds_bucket{foo="foo",method="GET",request="/v1.0/example",status="200",le="0.5"} 2
 app_http_response_time_seconds_count{foo="foo",method="GET",request="/v1.0/example",status="200"} 2
-app_http_response_time_seconds_bucket{foo="foo",method="GET",request="/v1.0/example/:id",status="200",le="0.005"} 1
+app_http_response_time_seconds_bucket{foo="foo",method="GET",request="/v1.0/example/:id",status="200",le="0.5"} 1
 
 app_http_response_time_seconds_sum{foo="foo",method="GET",request="/v1.0/example/:id",status="200"} 0.003
 app_http_response_time_seconds_count{foo="foo",method="GET",request="/v1.0/example/:id",status="200"} 1
 
-```
 
 ## Thanks
 
-- Inspired by [prometheus-nginxlog-exporter](https://github.com/songjiayang/nginx-log-exporter)
+Forked form [prometheus-nginxlog-exporter](https://github.com/songjiayang/nginx-log-exporter)
