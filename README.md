@@ -32,34 +32,41 @@ exit status 2
 ## Configuration
 
 ```
-- name: app
-
+- name: nginx
   source_files:
-  
-    - ./data/logs/nginx/service_nginx_80.log
-    
+    - /tmp/access.log
   static_config:
-  
-    foo: foo
-    
-  relabel_config: 
-  
-    source_labels: 
-    
-      - request
-      - method
+    service: ucenter
+  relabel_config:
+    source_labels:
       - status
-      
-    replacement:
-    
-      request: 
-      
-        trim: "?"
-        
-        replace:
-        
-          - target: /app/[0-9]+/api
-            value: /app/xxx/api
+      - request
+      - http_host
+      - server_port
+      - upstream_addr
+      - request_method
+      - upstream_status
+    replacements:
+      request:
+        - trims:
+          - sep: " "
+            idx: 1
+          - sep: "&"
+            idx: 0
+          replaces:
+          - target: (.*)\?uid=(.*)
+            value: $1?pid=$2
+          - target: (.*)\?pid=(.*)
+            value: $1?xxx=$2
+        - trims:
+          - sep: " "
+            idx: 1
+          - sep: "&"
+            idx: 0
+  histogram_buckets:
+    start: 50
+    step: 50
+    num: 1
 ```
 
 ## name
@@ -88,9 +95,9 @@ all metrics will add static label sets.
 
   * source_labels: what's labels should be use.
   
-  * replacement: source labelvalue format rule, it supports regrex. 
+  * replacements: source labelvalue format rule, it supports regrex. 
 
-## Example
+## Output Style
 
 
 app_http_response_count_total{foo="foo",method="GET",request="/app",status="200"} 2
@@ -105,6 +112,45 @@ app_http_response_time_seconds_bucket{foo="foo",method="GET",request="/app",stat
 
 app_http_response_time_seconds_sum{foo="foo",method="GET",request="/app",status="200"} 0.003
 app_http_response_time_seconds_count{foo="foo",method="GET",request="/app",status="200"} 1
+
+## Example
+
+### replacements
+
+
+```
+    replacements:
+      request:
+        - trims:
+          - sep: " "
+            idx: 1
+          - sep: "&"
+            idx: 0
+          replaces:
+          - target: (.*)\?uid=(.*)
+            value: $1?pid=$2
+          - target: (.*)\?pid=(.*)
+            value: $1?xxx=$2
+        - trims:
+          - sep: "?"
+            idx: 0
+```
+
+### log data
+
+```
+{ "timestamp": "15/Dec/2019:10:51:44 +0800", "remote_addr": "xx.xx.xx.xx", "request_time": "0.045", "status": "200", "request": "GET /app/api/ucenter/get?uid=123&pwd=123 HTTP/1.1", "request_method": "GET", "body_bytes_sent":"21", "http_x_clientip": "", "upstream_response_time": "0.046", "upstream_status": "200", "upstream_addr": "172.17.32.128:80", "request_body": ""}
+```
+
+```
+1. request will be trimmed  to "/app/api/ucenter/get?uid=123&pwd=123"
+2. request will be trimmed  to "/app/api/ucenter/get?uid=123"
+3. request will be replaced to "/app/api/ucenter/get?pid=123"
+4. request will be replaced to "/app/api/ucenter/get?xxx=123"
+5. request will be trimmed  to "/app/api/ucenter/get"
+```
+
+That's to say, you can write your own trim and replace rules to run as many cycles as you want, with each output as the input of the next cycle. 非常灵活。
 
 
 ## Thanks
