@@ -1,8 +1,8 @@
 - name: nginx
   source_files:
-    - /data/logs/nginx/ucenter_access.log
+    - /tmp/access.log
   static_config:
-    service: user_center
+    service: ucenter
   relabel_config:
     source_labels:
       - status
@@ -12,15 +12,24 @@
       - upstream_addr
       - request_method
       - upstream_status
-    replacement:
+    replacements:
       request:
-        trim: "?"
-        replace:
-          - target: ^[A-Z]+ /
-            value: /
-          - target: (.*)/[0-9]+/(.*)
-            value: $1/xxx/$2
+        - trims:
+          - sep: " "
+            idx: 1
+          - sep: "&"
+            idx: 0
+          replaces:
+          - target: (.*)\?uid=(.*)
+            value: $1?pid=$2
+          - target: (.*)\?pid=(.*)
+            value: $1?xxx=$2
+        - trims:
+          - sep: " "
+            idx: 1
+          - sep: "&"
+            idx: 0
   histogram_buckets:
-    start: 5.0
-    step: 5.0
-    num: 800
+    start: 50
+    step: 50
+    num: 1

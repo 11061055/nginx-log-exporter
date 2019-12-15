@@ -1,6 +1,8 @@
 package config
 
 import (
+	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"regexp"
@@ -49,21 +51,28 @@ func (this *AppConfig) DynamicLabels() (labels []string) {
 }
 
 func (this *AppConfig) Prepare() {
-	for _, r := range this.RelabelConfig.Replacement {
-		for _, replaceItem := range r.Repace {
-			replaceItem.prepare()
+	for _, rs := range this.RelabelConfig.Replacements {
+	    for _, r := range rs {
+		    for _, replaceItem := range r.Repace {
+			    replaceItem.prepare()
+		    }
 		}
 	}
 }
 
 type RelabelConfig struct {
-	SourceLabels []string                `yaml:"source_labels"`
-	Replacement  map[string]*Replacement `yaml:"replacement"`
+	SourceLabels []string                   `yaml:"source_labels"`
+	Replacements  map[string][]*Replacement `yaml:"replacements"`
+}
+
+type Trim struct {
+    Sep string `yaml:"sep"`
+    Idx int `yaml:"idx"`
 }
 
 type Replacement struct {
-	Trim   string          `yaml:"trim"`
-	Repace []*RepaceTarget `yaml:"replace"`
+	Trims   []*Trim        `yaml:"trims"`
+	Repace []*RepaceTarget `yaml:"replaces"`
 }
 
 type RepaceTarget struct {
@@ -116,6 +125,10 @@ func load(s string) (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
+
+    jsonAppConfig , err := json.Marshal ( apps )
+    fmt.Printf("\nAppConfig is: \n $s", string(jsonAppConfig))
+
 
 	cfg.original = s
 	cfg.App = apps

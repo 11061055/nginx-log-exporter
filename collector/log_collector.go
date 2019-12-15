@@ -80,6 +80,7 @@ func (c *Collector) Run() {
 
 	for _, f := range c.cfg.SourceFiles {
 		t, err := tail.TailFile(f, tail.Config{
+		    ReOpen: true,
 			Follow: true,
 			Poll:   true,
 		})
@@ -141,19 +142,31 @@ func (c *Collector) Run() {
 }
 
 func (c *Collector) formatValue(label, value string) string {
-	replacement, ok := c.cfg.RelabelConfig.Replacement[label]
+	replacements, ok := c.cfg.RelabelConfig.Replacements[label]
 	if !ok {
 		return value
 	}
 
-	if replacement.Trim != "" {
-		value = strings.Split(value, replacement.Trim)[0]
-	}
+	for _, replacement := range replacements {
 
-	for _, target := range replacement.Repace {
-		if target.Regexp().MatchString(value) {
-		    value = target.Regexp().ReplaceAllString(value, target.Value)
-		}
+	    if replacement.Trims != nil {
+
+	        for _, trim := range replacement.Trims {
+	            arr := strings.Split(value, trim.Sep)
+	            if len(arr) > trim.Idx {
+	                value = arr[trim.Idx]
+	            }
+	        }
+	    }
+
+	    if replacement.Repace != nil {
+
+	        for _, target := range replacement.Repace {
+		        if target.Regexp().MatchString(value) {
+		            value = target.Regexp().ReplaceAllString(value, target.Value)
+		        }
+	        }
+	    }
 	}
 
 	return value

@@ -30,7 +30,7 @@ func main() {
 		go collector.NewCollector(app).Run()
 	}
 
-	fmt.Printf("running HTTP server on address %s\n", bind)
+	fmt.Printf("\n\nrunning HTTP server on address %s\n\n", bind)
 	http.Handle("/metrics", promhttp.Handler())
 	http.ListenAndServe(bind, nil)
 }
