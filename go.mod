@@ -1,4 +1,4 @@
-module github.com/songjiayang/nginx-log-exporter
+module github.com/11061055/nginx-log-exporter
 
 go 1.12
 
