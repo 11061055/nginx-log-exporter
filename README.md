@@ -150,7 +150,7 @@ app_http_response_time_seconds_count{foo="foo",method="GET",request="/app",statu
 5. request will be trimmed  to "/app/api/ucenter/get"
 ```
 
-That's to say, you can write your own trim and replace rules to run as many cycles as you want, with each output as the input of the next cycle.
+That's to say, you can write your own trim and replace rules to run as many cycles as you want, with each output as the input of the next cycle. 非常灵活。
 
 
 ## Thanks
