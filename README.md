@@ -1,7 +1,12 @@
-# 背景 （Background）
+# Background
 
+Packets monitor for off-site net tunnel .
 
-搭建了异地内网通信通道。 1. 需要对两边通道入口、出口做异常监控。 2. 需要对两边通道入口、出口做流量统计和性能分析。
+搭建了异地内网通信通道。 
+
+1. 需要对两边通道入口、出口做异常监控。 
+
+2. 需要对两边通道入口、出口做流量统计和接口性能分析。
 
 
 # nginx-log-exporter
