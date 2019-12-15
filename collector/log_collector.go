@@ -44,7 +44,7 @@ func NewCollector(cfg *config.AppConfig) *Collector {
 	return &Collector{
 		countTotal: prometheus.NewCounterVec(prometheus.CounterOpts{
 			Namespace: cfg.Name,
-			Name:      "http_response_counter_total",
+			Name:      "http_request_counter_total",
 			Help:      "Amount of processed HTTP requests",
 		}, labels),
 
@@ -148,7 +148,7 @@ func (c *Collector) Run() {
 				    if b, err := strconv.ParseFloat(bytes, 32); err == nil {
 
 					    c.bytesTotal.WithLabelValues(labelValues...).Add(b)
-					    c.bytesGauge.WithLabelValues(labelValues...).Add(b)
+					    c.bytesGauge.WithLabelValues(labelValues...).Set(b)
 					}
 				}
 
@@ -157,7 +157,7 @@ func (c *Collector) Run() {
 				    if u, err := strconv.ParseFloat(upstreamTime, 32); err == nil {
 
 					    c.upstreamSecondsHistogram.WithLabelValues(labelValues...).Observe(u)
-					    c.upstreamSecondsGauge.WithLabelValues(labelValues...).Add(u)
+					    c.upstreamSecondsGauge.WithLabelValues(labelValues...).Set(u)
 
 					}
 				}
@@ -167,7 +167,7 @@ func (c *Collector) Run() {
 				    if r, err := strconv.ParseFloat(responseTime, 32); err == nil {
 
 					    c.requestSecondsHistogram.WithLabelValues(labelValues...).Observe(r)
-					    c.requestSecondsGauge.WithLabelValues(labelValues...).Add(r)
+					    c.requestSecondsGauge.WithLabelValues(labelValues...).Set(r)
 
 					}
 				}
