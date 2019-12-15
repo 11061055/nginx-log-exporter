@@ -156,3 +156,7 @@ That's to say, you can write your own trim and replace rules to run as many cycl
 ## Thanks
 
 Forked form [prometheus-nginxlog-exporter](https://github.com/songjiayang/nginx-log-exporter)
+
+Change 1. log format to json.
+Change 2. add histogram buckets.
+Change 3. trim and replace run as cycles with each output as the input of the next cycle. It's more flexible.
