@@ -80,7 +80,7 @@ func (c *Collector) Run() {
 
 	for _, f := range c.cfg.SourceFiles {
 		t, err := tail.TailFile(f, tail.Config{
-		    //ReOpen: true,
+		    ReOpen: true,
 			Follow: true,
 			Poll:   true,
 		})
