@@ -25,9 +25,7 @@
           - target: (.*)\?pid=(.*)
             value: $1?xxx=$2
         - trims:
-          - sep: " "
-            idx: 1
-          - sep: "&"
+          - sep: "?"
             idx: 0
   histogram_buckets:
     start: 50
