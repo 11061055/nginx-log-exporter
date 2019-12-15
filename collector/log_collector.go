@@ -120,8 +120,10 @@ func (c *Collector) Run() {
 	prometheus.MustRegister(c.bytesGauge)
 	prometheus.MustRegister(c.upstreamSecondsHistogram)
 	prometheus.MustRegister(c.upstreamSecondsGauge)
+	prometheus.MustRegister(c.upstreamSecondsSummary)
 	prometheus.MustRegister(c.requestSecondsHistogram)
 	prometheus.MustRegister(c.requestSecondsGauge)
+	prometheus.MustRegister(c.requestSecondsSummary)
 
 
 	for _, f := range c.cfg.SourceFiles {
