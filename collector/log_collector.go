@@ -23,9 +23,12 @@ type Collector struct {
 
 	upstreamSecondsHistogram *prometheus.HistogramVec
 	upstreamSecondsGauge     *prometheus.GaugeVec
+    upstreamSecondsSummary   *prometheus.SummaryVec
+
 
 	requestSecondsHistogram *prometheus.HistogramVec
 	requestSecondsGauge     *prometheus.GaugeVec
+	requestSecondsSummary   *prometheus.SummaryVec
 
 	staticValues    []string
 	dynamicLabels   []string
@@ -73,6 +76,13 @@ func NewCollector(cfg *config.AppConfig) *Collector {
 			Help:      "Time needed by upstream servers to handle requests",
 		}, labels),
 
+		upstreamSecondsSummary: prometheus.NewSummaryVec(prometheus.SummaryOpts{
+			Namespace: cfg.Name,
+			Name:      "http_upstream_time_seconds_summary",
+			Help:      "Time needed by upstream servers to handle requests",
+			Objectives: map[float64]float64{0.7: 0.05, 0.9: 0.01, 0.95: 0.001},
+		}, labels),
+
 		requestSecondsHistogram: prometheus.NewHistogramVec(prometheus.HistogramOpts{
 			Namespace: cfg.Name,
 			Name:      "http_request_time_seconds_histogram",
@@ -84,6 +94,13 @@ func NewCollector(cfg *config.AppConfig) *Collector {
 			Namespace: cfg.Name,
 			Name:      "http_request_time_seconds_gauge",
 			Help:      "Time needed by NGINX to handle requests",
+		}, labels),
+
+		requestSecondsSummary: prometheus.NewSummaryVec(prometheus.SummaryOpts{
+			Namespace: cfg.Name,
+			Name:      "http_request_time_seconds_summary",
+			Help:      "Time needed by NGINX to handle requests",
+			Objectives: map[float64]float64{0.7: 0.05, 0.9: 0.01, 0.95: 0.001},
 		}, labels),
 
 		staticValues:    staticValues,
@@ -158,6 +175,7 @@ func (c *Collector) Run() {
 
 					    c.upstreamSecondsHistogram.WithLabelValues(labelValues...).Observe(u)
 					    c.upstreamSecondsGauge.WithLabelValues(labelValues...).Set(u)
+					    c.upstreamSecondsSummary.WithLabelValues(labelValues...).Observe(u)
 
 					}
 				}
@@ -168,6 +186,7 @@ func (c *Collector) Run() {
 
 					    c.requestSecondsHistogram.WithLabelValues(labelValues...).Observe(r)
 					    c.requestSecondsGauge.WithLabelValues(labelValues...).Set(r)
+					    c.requestSecondsSummary.WithLabelValues(labelValues...).Observe(r)
 
 					}
 				}
