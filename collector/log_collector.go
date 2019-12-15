@@ -83,6 +83,7 @@ func (c *Collector) Run() {
 		    ReOpen: true,
 			Follow: true,
 			Poll:   true,
+			Location:  &tail.SeekInfo{Offset: 0, Whence: 2},
 		})
 
 		if err != nil {
