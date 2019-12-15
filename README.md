@@ -126,13 +126,13 @@ app_http_response_time_seconds_count{foo="foo",method="GET",request="/app",statu
     replacements:
       request:
         - trims:
-          - sep: " "
-            idx: 1
+          - sep: " "  // split the string by black character " "
+            idx: 1    // the 1th index part is what we need
           - sep: "&"
             idx: 0
           replaces:
-          - target: (.*)\?uid=(.*)
-            value: $1?pid=$2
+          - target: (.*)\?uid=(.*)   // regex math the string by target
+            value: $1?pid=$2         // regex replace the string by value
           - target: (.*)\?pid=(.*)
             value: $1?xxx=$2
         - trims:
