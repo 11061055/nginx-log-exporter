@@ -15,10 +15,17 @@ import (
 // Collector is a struct containing pointers to all metrics that should be
 // exposed to Prometheus
 type Collector struct {
-	countTotal      *prometheus.CounterVec
-	bytesTotal      *prometheus.CounterVec
-	upstreamSeconds *prometheus.HistogramVec
-	responseSeconds *prometheus.HistogramVec
+
+	countTotal               *prometheus.CounterVec
+
+	bytesTotal               *prometheus.CounterVec
+	bytesGauge               *prometheus.GaugeVec
+
+	upstreamSecondsHistogram *prometheus.HistogramVec
+	upstreamSecondsGauge     *prometheus.GaugeVec
+
+	requestSecondsHistogram *prometheus.HistogramVec
+	requestSecondsGauge     *prometheus.GaugeVec
 
 	staticValues    []string
 	dynamicLabels   []string
@@ -37,28 +44,46 @@ func NewCollector(cfg *config.AppConfig) *Collector {
 	return &Collector{
 		countTotal: prometheus.NewCounterVec(prometheus.CounterOpts{
 			Namespace: cfg.Name,
-			Name:      "http_response_count_total",
+			Name:      "http_response_counter_total",
 			Help:      "Amount of processed HTTP requests",
 		}, labels),
 
 		bytesTotal: prometheus.NewCounterVec(prometheus.CounterOpts{
 			Namespace: cfg.Name,
-			Name:      "http_response_size_bytes",
+			Name:      "http_response_size_bytes_counter_total",
 			Help:      "Total amount of transferred bytes",
 		}, labels),
 
-		upstreamSeconds: prometheus.NewHistogramVec(prometheus.HistogramOpts{
+		bytesGauge: prometheus.NewGaugeVec(prometheus.GaugeOpts{
 			Namespace: cfg.Name,
-			Name:      "http_upstream_time_seconds",
+			Name:      "http_response_size_bytes_gauge",
+			Help:      "Amount of transferred bytes",
+		}, labels),
+
+		upstreamSecondsHistogram: prometheus.NewHistogramVec(prometheus.HistogramOpts{
+			Namespace: cfg.Name,
+			Name:      "http_upstream_time_seconds_histogram",
 			Help:      "Time needed by upstream servers to handle requests",
 			Buckets:   bucket,
 		}, labels),
 
-		responseSeconds: prometheus.NewHistogramVec(prometheus.HistogramOpts{
+		upstreamSecondsGauge: prometheus.NewGaugeVec(prometheus.GaugeOpts{
 			Namespace: cfg.Name,
-			Name:      "http_response_time_seconds",
+			Name:      "http_upstream_time_seconds_gauge",
+			Help:      "Time needed by upstream servers to handle requests",
+		}, labels),
+
+		requestSecondsHistogram: prometheus.NewHistogramVec(prometheus.HistogramOpts{
+			Namespace: cfg.Name,
+			Name:      "http_request_time_seconds_histogram",
 			Help:      "Time needed by NGINX to handle requests",
 			Buckets:   bucket,
+		}, labels),
+
+		requestSecondsGauge: prometheus.NewGaugeVec(prometheus.GaugeOpts{
+			Namespace: cfg.Name,
+			Name:      "http_request_time_seconds_gauge",
+			Help:      "Time needed by NGINX to handle requests",
 		}, labels),
 
 		staticValues:    staticValues,
@@ -75,8 +100,12 @@ func (c *Collector) Run() {
 	// register to prometheus
 	prometheus.MustRegister(c.countTotal)
 	prometheus.MustRegister(c.bytesTotal)
-	prometheus.MustRegister(c.upstreamSeconds)
-	prometheus.MustRegister(c.responseSeconds)
+	prometheus.MustRegister(c.bytesGauge)
+	prometheus.MustRegister(c.upstreamSecondsHistogram)
+	prometheus.MustRegister(c.upstreamSecondsGauge)
+	prometheus.MustRegister(c.requestSecondsHistogram)
+	prometheus.MustRegister(c.requestSecondsGauge)
+
 
 	for _, f := range c.cfg.SourceFiles {
 		t, err := tail.TailFile(f, tail.Config{
@@ -119,6 +148,7 @@ func (c *Collector) Run() {
 				    if b, err := strconv.ParseFloat(bytes, 32); err == nil {
 
 					    c.bytesTotal.WithLabelValues(labelValues...).Add(b)
+					    c.bytesGauge.WithLabelValues(labelValues...).Add(b)
 					}
 				}
 
@@ -126,7 +156,9 @@ func (c *Collector) Run() {
 
 				    if u, err := strconv.ParseFloat(upstreamTime, 32); err == nil {
 
-					    c.upstreamSeconds.WithLabelValues(labelValues...).Observe(u)
+					    c.upstreamSecondsHistogram.WithLabelValues(labelValues...).Observe(u)
+					    c.upstreamSecondsGauge.WithLabelValues(labelValues...).Add(u)
+
 					}
 				}
 
@@ -134,7 +166,9 @@ func (c *Collector) Run() {
 
 				    if r, err := strconv.ParseFloat(responseTime, 32); err == nil {
 
-					    c.responseSeconds.WithLabelValues(labelValues...).Observe(r)
+					    c.requestSecondsHistogram.WithLabelValues(labelValues...).Observe(r)
+					    c.requestSecondsGauge.WithLabelValues(labelValues...).Add(r)
+
 					}
 				}
 			}
