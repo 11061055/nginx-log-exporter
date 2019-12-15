@@ -9,7 +9,7 @@ import (
 
 	"github.com/hpcloud/tail"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/songjiayang/nginx-log-exporter/config"
+	"github.com/11061055/nginx-log-exporter/config"
 )
 
 // Collector is a struct containing pointers to all metrics that should be
