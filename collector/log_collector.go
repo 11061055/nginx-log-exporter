@@ -212,7 +212,7 @@ func (c *Collector) formatValue(label, value string) string {
 	            if len(arr) > trim.Idx {
 	                value = arr[trim.Idx]
 	            } else {
-	                value = "invalid"
+	                value = "invalid trim"
 	                return value
 	            }
 	        }
@@ -223,6 +223,9 @@ func (c *Collector) formatValue(label, value string) string {
 	        for _, target := range replacement.Repace {
 		        if target.Regexp().MatchString(value) {
 		            value = target.Regexp().ReplaceAllString(value, target.Value)
+		        } else {
+		            value = "invalid replace"
+		            return value
 		        }
 	        }
 	    }
