@@ -211,6 +211,9 @@ func (c *Collector) formatValue(label, value string) string {
 	            arr := strings.Split(value, trim.Sep)
 	            if len(arr) > trim.Idx {
 	                value = arr[trim.Idx]
+	            } else {
+	                value = "invalid"
+	                return value
 	            }
 	        }
 	    }
